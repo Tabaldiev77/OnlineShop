@@ -1,0 +1,76 @@
+import telebot
+from telebot import types
+
+bot = telebot.TeleBot('7035871779:AAE8efBWqtRYHN-RGTiFLGLISWp8a4I0KJA')
+
+# Создаем словарь, где ключами являются названия продуктов, а значениями - их информация (цена, описание и т.д.)
+products_info = {
+    'Яблоко': {'price': 30, 'description': 'Свежие яблоки из сада'},
+    'Банан': {'price': 25, 'description': 'Сладкие экзотические бананы'},
+    'Апельсин': {'price': 35, 'description': 'Сочные апельсины высокого качества'},
+    'Шоколадное мороженое': {'price': 50, 'description': 'Нежное мороженое с шоколадным вкусом'},
+    'Ванильное мороженое': {'price': 45, 'description': 'Классическое мороженое с ванильным вкусом'},
+    'Фруктовое мороженое': {'price': 55, 'description': 'Освежающее мороженое с кусочками фруктов'},
+    'Вода': {'price': 20, 'description': 'Чистая минеральная вода'},
+    'Сок': {'price': 40, 'description': 'Свежевыжатый натуральный сок'},
+    'Газировка': {'price': 30, 'description': 'Газированный напиток в различных вкусах'},
+    'Пирожное': {'price': 60, 'description': 'Изысканное пирожное с начинкой'},
+    'Шоколад': {'price': 70, 'description': 'Натуральный шоколад высшего качества'},
+    'Печенье': {'price': 25, 'description': 'Хрустящее печенье с различными добавками'}
+}
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    mess = f'Добро пожаловать! Пожалуйста, выберите категорию:'
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('Фрукты', callback_data='fruits'))
+    markup.add(types.InlineKeyboardButton('Мороженое', callback_data='ice_cream'))
+    markup.add(types.InlineKeyboardButton('Напитки', callback_data='drinks'))
+    markup.add(types.InlineKeyboardButton('Кондитерские изделия', callback_data='confectionery'))
+    bot.send_message(message.chat.id, mess, reply_markup=markup)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    if call.data == 'fruits':
+        bot.send_message(call.message.chat.id, 'Фрукты:')
+        for product, info in products_info.items():
+            if product in ['Яблоко', 'Банан', 'Апельсин']:
+                bot.send_message(call.message.chat.id, f'{product} - {info["price"]} сом\n{info["description"]}')
+    elif call.data == 'ice_cream':
+        bot.send_message(call.message.chat.id, 'Мороженое:')
+        for product, info in products_info.items():
+            if 'мороженое' in product:
+                bot.send_message(call.message.chat.id, f'{product} - {info["price"]} сом\n{info["description"]}')
+    elif call.data == 'drinks':
+        bot.send_message(call.message.chat.id, 'Напитки:')
+        for product, info in products_info.items():
+            if product in ['Вода', 'Сок', 'Газировка']:
+                bot.send_message(call.message.chat.id, f'{product} - {info["price"]} сом\n{info["description"]}')
+    elif call.data == 'confectionery':
+        bot.send_message(call.message.chat.id, 'Кондитерские изделия:')
+        for product, info in products_info.items():
+            if product in ['Пирожное', 'Шоколад', 'Печенье']:
+                bot.send_message(call.message.chat.id, f'{product} - {info["price"]} сом\n{info["description"]}')
+
+@bot.message_handler(commands=['website'])
+def website(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('Посетить веб сайт', url='https://www.motorpage.ru'))
+    bot.send_message(message.chat.id, 'Перейдите на сайт', reply_markup=markup)
+
+
+@bot.message_handler(commands=['help'])
+def website(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+    website = types.InlineKeyboardButton('Веб сайт')
+    start = types.InlineKeyboardButton('start')
+    markup.add(website, start)
+    markup.add(types.InlineKeyboardButton('Посетить веб сайт', url='https://www.motorpage.ru'))
+    bot.send_message(message.chat.id, 'Перейдите на сайт', reply_markup=markup)
+
+
+bot.polling(none_stop=True)
+
+
+
